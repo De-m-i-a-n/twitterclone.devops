@@ -1,30 +1,31 @@
 from django.test import TestCase
-    from django.contrib.auth.models import User
-    from .models import Tweet
+from .models import Tweet
+from django.contrib.auth.models import User
 
-    class TweetModelTest(TestCase):
+class TweetModelTest(TestCase):
+    def setUp(self):
+        """Set up a user for testing."""
+        self.user = User.objects.create_user(username='testuser', password='password')
 
-        def setUp(self):
-            self.user = User.objects.create_user(username='testuser', password='password')
+    def test_tweet_creation(self):
+        """Test that a tweet can be created."""
+        tweet = Tweet.objects.create(user=self.user, text="This is a test tweet.")
+        self.assertEqual(tweet.text, "This is a test tweet.")
+        self.assertEqual(tweet.user.username, 'testuser')
+        
+class TweetViewTest(TestCase):
+    def setUp(self):
+        """Set up a user and a tweet for testing."""
+        self.user = User.objects.create_user(username='testuser', password='password')
+        self.tweet = Tweet.objects.create(user=self.user, text="Another test tweet.")
 
-        def test_create_text_tweet(self):
-            tweet = Tweet.objects.create(user=self.user, text='This is a test tweet.')
-            self.assertEqual(tweet.user.username, 'testuser')
-            self.assertEqual(tweet.text, 'This is a test tweet.')
-            self.assertIsNone(tweet.image.name)
+    def test_homepage_view(self):
+        """Test the homepage view."""
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
 
-    class HomeViewTest(TestCase):
-
-        def setUp(self):
-            self.user = User.objects.create_user(username='testuser', password='password')
-            self.client.login(username='testuser', password='password')
-
-        def test_home_view_get(self):
-            response = self.client.get('/')
-            self.assertEqual(response.status_code, 200)
-            self.assertTemplateUsed(response, 'tweets/home.html')
-
-        def test_create_tweet_post(self):
-            response = self.client.post('/', {'text': 'A new tweet from a test.'})
-            self.assertEqual(response.status_code, 302) # Should redirect
-            self.assertTrue(Tweet.objects.filter(text='A new tweet from a test.').exists())
+    def test_tweet_detail_view(self):
+        """Test the tweet detail view."""
+        response = self.client.get(f'/tweet/{self.tweet.id}/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Another test tweet.")

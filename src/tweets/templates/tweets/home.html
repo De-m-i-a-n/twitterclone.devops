@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}Home / Twitter{% endblock %}
+
+{% block content %}
+  <!-- Header -->
+  <div
+    class="flex justify-between items-center border-b px-4 py-3 sticky top-0 bg-white dark:bg-dim-900 border-l border-r border-gray-200 dark:border-gray-700"
+  >
+    <!-- Title -->
+    <h2 class="text-gray-800 dark:text-gray-100 font-bold text-lg">
+      Home
+    </h2>
+    <!-- /Title -->
+
+    <!-- Custom Timeline -->
+    <div>
+      <svg
+        viewBox="0 0 24 24"
+        class="w-5 h-5 text-blue-400"
+        fill="currentColor"
+      >
+        <g>
+          <path
+            d="M22.772 10.506l-5.618-2.192-2.16-6.5c-.102-.307-.39-.514-.712-.514s-.61.207-.712.513l-2.16 6.5-5.62 2.192c-.287.112-.477.39-.477.7s.19.585.478.698l5.62 2.192 2.16 6.5c.102.306.39.513.712.513s.61-.207.712-.513l2.16-6.5 5.62-2.192c.287-.112.477-.39.477-.7s-.19-.585-.478-.697zm-6.49 2.32c-.208.08-.37.25-.44.46l-1.56 4.695-1.56-4.693c-.07-.21-.23-.38-.438-.462l-4.155-1.62 4.154-1.622c.208-.08.37-.25.44-.462l1.56-4.693 1.56 4.694c.07.212.23.382.438.463l4.155 1.62-4.155 1.622zM6.663 3.812h-1.88V2.05c0-.414-.337-.75-.75-.75s-.75.336-.75.75v1.762H1.5c-.414 0-.75.336-.75.75s.336.75.75.75h1.782v1.762c0 .414.336.75.75.75s.75-.336.75-.75V5.312h1.88c.415 0 .75-.336.75-.75s-.335-.75-.75-.75zm2.535 15.622h-1.1v-1.016c0-.414-.335-.75-.75-.75s-.75.336-.75.75v1.016H5.57c-.414 0-.75.336-.75.75s.336.75.75.75H6.6v1.016c0 .414.335.75.75.75s.75-.336.75-.75v-1.016h1.098c.414 0 .75-.336.75-.75s-.336-.75-.75-.75z"
+          ></path>
+        </g>
+      </svg>
+    </div>
+    <!-- /Custom Timeline -->
+  </div>
+  <!-- /Header -->
+
+  {% if user.is_authenticated %}
+    <!-- Post Tweet -->
+    <div class="px-5 py-3 border-b border-gray-200 dark:border-gray-700">
+      <div class="flex flex-shrink-0 pb-0">
+        <div class="w-12 flex items-top">
+          <img
+            class="inline-block h-10 w-10 rounded-full"
+            src="https://cdn-icons-png.flaticon.com/512/11676/11676420.png"
+            alt=""
+          />
+        </div>
+        <div class="w-full p-2">
+          <!-- Django Form for Tweet Creation -->
+          <form method="post" enctype="multipart/form-data" class="w-full">
+            {% csrf_token %}
+            
+            <!-- Tweet Text Input -->
+            <textarea
+              name="{{ form.text.name }}"
+              id="{{ form.text.id_for_label }}"
+              class="dark:text-white text-gray-900 placeholder-gray-400 w-full h-20 bg-transparent border-0 focus:outline-none resize-none"
+              placeholder="What's happening?"
+            ></textarea>
+            
+            <!-- Validation Errors -->
+            {% if form.text.errors %}
+              <div class="text-red-500 text-sm mb-2">
+                {% for error in form.text.errors %}
+                  <p>{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+            
+            <!-- Image Upload Preview -->
+            <div id="image-preview" class="hidden mb-3">
+              <div class="relative inline-block">
+                <img id="preview-img" class="max-w-xs rounded-lg" alt="Preview" />
+                <button type="button" onclick="removeImage()" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                  ×
+                </button>
+              </div>
+            </div>
+            
+            <!-- Image Upload Section -->
+            <div class="flex items-center justify-between mt-3">
+              <div class="flex items-center space-x-4">
+                <!-- Image Upload Button - Made More Prominent -->
+                <label for="{{ form.image.id_for_label }}" class="cursor-pointer group">
+                  <div class="text-blue-400 hover:bg-blue-50 dark:hover:bg-dim-800 rounded-full p-2 transition duration-200 group-hover:scale-110">
+                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
+                      <g>
+                        <path
+                          d="M19.75 2H4.25C3.01 2 2 3.01 2 4.25v15.5C2 20.99 3.01 22 4.25 22h15.5c1.24 0 2.25-1.01 2.25-2.25V4.25C22 3.01 20.99 2 19.75 2zM4.25 3.5h15.5c.413 0 .75.337.75.75v9.676l-3.858-3.858c-.14-.14-.33-.22-.53-.22h-.003c-.2 0-.393.08-.532.224l-4.317 4.384-1.813-1.806c-.14-.14-.33-.22-.53-.22-.193-.03-.395.08-.535.227L3.5 17.642V4.25c0-.413.337-.75.75-.75zm-.744 16.28l5.418-5.534 6.282 6.254H4.25c-.402 0-.727-.322-.744-.72zm16.244.72h-2.42l-5.007-4.987 3.792-3.85 4.385 4.384v3.703c0 .413-.337.75-.75.75z"
+                        ></path>
+                        <circle cx="8.868" cy="8.309" r="1.542"></circle>
+                      </g>
+                    </svg>
+                  </div>
+                  <span class="text-xs text-blue-400 block text-center mt-1">Photo</span>
+                  <input type="file" name="{{ form.image.name }}" id="{{ form.image.id_for_label }}" accept="image/*" class="hidden" onchange="previewImage(this)" />
+                </label>
+                
+                <!-- GIF Button -->
+                <a href="#" class="text-blue-400 hover:bg-blue-50 dark:hover:bg-dim-800 rounded-full p-2 transition duration-200 group-hover:scale-110">
+                  <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
+                    <g>
+                      <path
+                        d="M19 10.5V8.8h-4.4v6.4h1.7v-2h2v-1.7h-2v-1H19zm-7.3-1.7h1.7v6.4h-1.7V8.8zm-3.6 1.6c.4 0 .9.2 1.2.5l1.2-1C9.9 9.2 9 8.8 8.1 8.8c-1.8 0-3.2 1.4-3.2 3.2s1.4 3.2 3.2 3.2c1 0 1.8-.4 2.4-1.1v-2.5H7.7v1.2h1.2v.6c-.2.1-.5.2-.8.2-.9 0-1.6-.7-1.6-1.6 0-.8.7-1.6 1.6-1.6z"
+                      ></path>
+                    </g>
+                  </svg>
+                  <span class="text-xs text-blue-400 block text-center mt-1">GIF</span>
+                </a>
+                
+                <!-- Poll Button -->
+                <a href="#" class="text-blue-400 hover:bg-blue-50 dark:hover:bg-dim-800 rounded-full p-2 transition duration-200 group-hover:scale-110">
+                  <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
+                    <g>
+                      <path
+                        d="M6 5c-1.11 0-1.99.89-1.99 2S4.89 9 6 9 7.99 8.11 7.99 7S7.11 5 6 5zm0 6c-1.11 0-1.99.89-1.99 2S4.89 15 6 15s1.99-.89 1.99-2S7.11 11 6 11zm6-4c-1.11 0-1.99.89-1.99 2S10.89 9 12 9s1.99-.89 1.99-2S13.11 5 12 5zm0 6c-1.11 0-1.99.89-1.99 2S10.89 15 12 15s1.99-.89 1.99-2S13.11 11 12 11z"
+                      ></path>
+                    </g>
+                  </svg>
+                  <span class="text-xs text-blue-400 block text-center mt-1">Poll</span>
+                </a>
+                
+                <!-- Emoji Button -->
+                <a href="#" class="text-blue-400 hover:bg-blue-50 dark:hover:bg-dim-800 rounded-full p-2 transition duration-200 group-hover:scale-110">
+                  <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
+                    <g>
+                      <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+                      ></path>
+                    </g>
+                  </svg>
+                  <span class="text-xs text-blue-400 block text-center mt-1">Emoji</span>
+                </a>
+                
+                <!-- Schedule Button -->
+                <a href="#" class="text-blue-400 hover:bg-blue-50 dark:hover:bg-dim-800 rounded-full p-2 transition duration-200 group-hover:scale-110">
+                  <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
+                    <g>
+                      <path
+                        d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+                      ></path>
+                      <path
+                        d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"
+                      ></path>
+                    </g>
+                  </svg>
+                  <span class="text-xs text-blue-400 block text-center mt-1">Schedule</span>
+                </a>
+                
+                <!-- Location Button -->
+                <a href="#" class="text-blue-400 hover:bg-blue-50 dark:hover:bg-dim-800 rounded-full p-2 transition duration-200 group-hover:scale-110">
+                  <svg viewBox="0 0 24 24" class="w-5 h-5" fill="currentColor">
+                    <g>
+                      <path
+                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+                      ></path>
+                    </g>
+                  </svg>
+                  <span class="text-xs text-blue-400 block text-center mt-1">Location</span>
+                </a>
+              </div>
+              
+              <!-- Tweet Button -->
+              <button
+                type="submit"
+                class="bg-blue-400 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-full transition duration-200"
+              >
+                Tweet
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- /Post Tweet -->
+  {% else %}
+    <!-- Login Prompt for Non-Authenticated Users -->
+    <div class="px-5 py-8 text-center border-b border-gray-200 dark:border-gray-700">
+      <div class="max-w-md mx-auto">
+        <svg class="w-16 h-16 mx-auto mb-4 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+          <g>
+            <path
+              d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z"
+            ></path>
+          </g>
+        </svg>
+        <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">Join Twitter today</h3>
+        <p class="text-gray-600 dark:text-gray-300 mb-6">Sign up to get your own personalized timeline!</p>
+        <div class="space-y-3">
+          <a href="{% url 'login' %}" class="block w-full bg-blue-400 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-full transition duration-200">
+            Sign in
+          </a>
+          <a href="{% url 'login' %}" class="block w-full bg-transparent hover:bg-gray-100 dark:hover:bg-dim-800 text-blue-400 font-bold py-3 px-4 rounded-full border-2 border-blue-400 transition duration-200">
+            Sign up
+          </a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Timeline -->
+  <div>
+    {% for tweet in tweets %}
+      <!-- Tweet -->
+      <div
+        class="border-b border-gray-200 dark:border-dim-200 hover:bg-gray-100 dark:hover:bg-dim-300 cursor-pointer transition duration-350 ease-in-out pb-4 border-l border-r"
+      >
+        <div class="flex flex-shrink-0 p-4 pb-0">
+          <a href="#" class="flex-shrink-0 group block">
+            <div class="flex items-top">
+              <div>
+                <!-- User Profile Picture -->
+                <!-- src="https://pbs.twimg.com/profile_images/1308769664240160770/AfgzWVE7_normal.jpg" -->
+                <img
+                  class="inline-block h-9 w-9 rounded-full"
+                  src="https://cdn-icons-png.flaticon.com/512/11676/11676420.png"
+                  alt="Profile picture for {{ tweet.user.username }}"
+                />
+              </div>
+              <div class="ml-3">
+                <p class="text-base leading-6 font-medium text-gray-800 dark:text-white">
+                  <span class="hover:underline">
+                    {{ tweet.user.username }}
+                  </span>
+                  <span class="text-gray-500 dark:text-gray-400 font-normal">
+                    @{{ tweet.user.username }}
+                  </span>
+                  <span class="text-gray-500 dark:text-gray-400 font-normal">
+                    · {{ tweet.created_at|timesince }}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </a>
+        </div>
+        
+        <!-- Tweet Content -->
+        <div class="pl-16">
+          <p class="text-base width-auto font-medium text-gray-800 dark:text-white flex-shrink">
+            {{ tweet.text }}
+          </p>
+          
+          <!-- Tweet Image -->
+          {% if tweet.image %}
+            <div class="mt-3">
+              <img
+                src="{{ tweet.image.url }}"
+                alt="Tweet image"
+                class="rounded-2xl max-w-full h-auto"
+              />
+            </div>
+          {% endif %}
+          
+          <!-- Tweet Actions -->
+          <div class="flex items-center justify-between w-full mt-3">
+            <!-- Reply -->
+            <div class="flex items-center text-gray-500 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition duration-200">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 mr-2" fill="currentColor">
+                <g>
+                  <path
+                    d="M14.046 2.242l-4.148-.01h-.423c-1.605 0-2.73.649-2.73 1.731v4.714c0 1.082 1.125 1.731 2.73 1.731h.423l4.148.01.9.008c1.605 0 2.73-.649 2.73-1.731v-4.714c0-1.082-1.125-1.731-2.73-1.731l-.9-.008zM14.046 2.242l-4.148-.01h-.423c-1.605 0-2.73.649-2.73 1.731v4.714c0 1.082 1.125 1.731 2.73 1.731h.423l4.148.01.9.008c1.605 0 2.73-.649 2.73-1.731v-4.714c0-1.082-1.125-1.731-2.73-1.731l-.9-.008z"
+                  ></path>
+                  <path
+                    d="M23.77 7.33c0-.62-.124-1.21-.349-1.76-.225-.56-.544-1.07-.937-1.52-.393-.45-.854-.82-1.373-1.11-.52-.29-1.08-.44-1.66-.44H18.62c.31.01.61.03.91.08.3.05.59.12.87.2.28.08.54.18.79.28.25.1.48.22.69.34.21.12.39.25.55.39.16.14.29.3.4.47.11.17.19.35.25.54.06.19.09.39.09.6 0 .19-.02.38-.07.56-.05.18-.14.36-.25.53-.11.17-.23.32-.39.47-.16.15-.35.3-.56.44-.21.14-.43.26-.68.37-.25.11-.52.2-.8.28-.28.08-.58.13-.89.17-.31.04-.63.06-.95.06h-1.61c-.31 0-.61-.02-.91-.06-.3-.04-.59-.09-.87-.17-.28-.08-.54-.17-.79-.28-.25-.11-.47-.23-.68-.37-.21-.14-.4-.29-.56-.44-.16-.15-.29-.3-.39-.47-.11-.17-.2-.35-.25-.53-.05-.18-.08-.37-.08-.56 0-.19.02-.38.07-.56.05-.18.14-.36.25-.53.11-.17.23-.32.39-.47.16-.15.35-.3.56-.44.21-.14.43-.26.68-.37.25-.11.52-.2.8-.28.28-.08.58-.13.89-.17.3-.04.63-.06.95-.06h1.61c.31 0 .61.02.91.06.3.04.59.09.87.17.28.08.54.17.79.28.25.11.47.23.68.37.21.14.4.29.56.44.16.15.29.3.39.47.11.17.2.35.25.53.05.18.08.37.08.56z"
+                  ></path>
+                </g>
+              </svg>
+              <span class="text-sm">0</span>
+            </div>
+            
+            <!-- Retweet -->
+            <div class="flex items-center text-gray-500 dark:text-gray-400 hover:text-green-400 dark:hover:text-green-400 transition duration-200">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 mr-2" fill="currentColor">
+                <g>
+                  <path
+                    d="M23.77 15.67c-.292-.293-.767-.293-1.06 0l-2.22 2.22V7.65c0-2.068-1.683-3.75-3.75-3.75h-5.85c-.414 0-.75.336-.75.75s.336.75.75.75h5.85c1.24 0 2.25 1.01 2.25 2.25v10.24l-2.22-2.22c-.293-.293-.768-.293-1.06 0s-.294.768 0 1.06l3.5 3.5c.145.147.337.22.53.22s.383-.072.53-.22l3.5-3.5c.294-.292.294-.767 0-1.06zm-10.66 3.28H7.26c-1.24 0-2.25-1.01-2.25-2.25V6.46l2.22 2.22c.148.147.34.22.532.22s.383-.073.53-.22c.293-.293.293-.768 0-1.06l-3.5-3.5c-.293-.294-.768-.294-1.06 0l-3.5 3.5c-.294.292-.294.767 0 1.06s.767.293 1.06 0l2.22-2.22V16.7c0 2.068 1.683 3.75 3.75 3.75h5.85c.414 0 .75-.336.75-.75s-.337-.75-.75-.75z"
+                  ></path>
+                </g>
+              </svg>
+              <span class="text-sm">0</span>
+            </div>
+            
+            <!-- Like -->
+            <div class="flex items-center text-gray-500 dark:text-gray-400 hover:text-red-400 dark:hover:text-red-400 transition duration-200">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 mr-2" fill="currentColor">
+                <g>
+                  <path
+                    d="M12 21.638h-.014C9.403 21.59 1.95 14.856 1.95 8.478c0-3.064 2.525-5.754 5.403-5.754 2.29 0 3.83 1.58 4.646 2.73.814-1.148 2.354-2.73 4.645-2.73 2.88 0 5.404 2.69 5.404 5.755 0 6.376-7.454 13.11-10.037 13.157H12zM7.354 4.225c-2.08 0-3.903 1.988-3.903 4.255 0 5.74 7.035 11.596 8.55 11.658 1.52-.062 8.55-5.917 8.55-11.658 0-2.267-1.823-4.255-3.903-4.255-2.528 0-3.94 2.936-3.952 2.965-.23.562-1.156.562-1.387 0-.014-.03-1.425-2.965-3.954-2.965z"
+                  ></path>
+                </g>
+              </svg>
+              <span class="text-sm">0</span>
+            </div>
+            
+            <!-- Share -->
+            <div class="flex items-center text-gray-500 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-400 transition duration-200">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 mr-2" fill="currentColor">
+                <g>
+                  <path
+                    d="M17.53 7.47l-5-5c-.293-.293-.768-.293-1.06 0l-5 5c-.294.293-.294.768 0 1.06.293.294.768.294 1.06 0l3.47-3.47V16.5c0 .414.336.75.75.75s.75-.336.75-.75V4.97l3.47 3.47c.146.147.338.22.53.22s.384-.072.53-.22c.294-.292.294-.767 0-1.06z"
+                  ></path>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /Tweet -->
+    {% empty %}
+      <!-- No Tweets Message -->
+      <div class="p-8 text-center">
+        <div class="text-gray-500 dark:text-gray-400 text-lg mb-4">
+          <svg class="w-16 h-16 mx-auto mb-4" fill="currentColor" viewBox="0 0 24 24">
+            <g>
+              <path
+                d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z"
+              ></path>
+            </g>
+          </svg>
+          <p class="text-xl font-bold text-gray-800 dark:text-white mb-2">Welcome to Twitter!</p>
+          <p class="text-gray-600 dark:text-gray-300">This is the best place to see what's happening in your world. Find some people and topics to follow now.</p>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <!-- /Timeline -->
+
+  <!-- Image Preview JavaScript -->
+  <script>
+    function previewImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('preview-img').src = e.target.result;
+          document.getElementById('image-preview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function removeImage() {
+      document.getElementById('image-preview').classList.add('hidden');
+      document.getElementById('{{ form.image.id_for_label }}').value = '';
+    }
+  </script>
+{% endblock %}

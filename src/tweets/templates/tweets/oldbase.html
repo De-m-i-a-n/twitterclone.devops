@@ -1,0 +1,21 @@
+ <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Micro Twitter</title>
+        <style>
+            body { font-family: sans-serif; margin: 40px; }
+            .tweet { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+            .tweet img { max-width: 100%; height: auto; }
+        </style>
+    </head>
+    <body>
+        {% if user.is_authenticated %}
+            <p>Welcome, {{ user.username }}! <a href="{% url 'admin:logout' %}?next=/">Logout</a></p>
+        {% else %}
+            <p><a href="{% url 'admin:login' %}?next=/">Login</a></p>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </body>
+    </html>

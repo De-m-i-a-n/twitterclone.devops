@@ -1,0 +1,26 @@
+{% extends 'tweets/base.html' %}
+
+    {% block content %}
+        <h2>Post a new Tweet</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Tweet1</button>
+        </form>
+
+        <hr>
+
+        <h2>Timeline</h2>
+        {% for tweet in tweets %}
+            <div class="tweet">
+                <strong>@{{ tweet.user.username }}</strong>
+                <p>{{ tweet.text }}</p>
+                {% if tweet.image %}
+                    <img src="{{ tweet.image.url }}" alt="Tweet image">
+                {% endif %}
+                <small>{{ tweet.created_at }}</small>
+            </div>
+        {% empty %}
+            <p>No tweets yet.</p>
+        {% endfor %}
+    {% endblock %}

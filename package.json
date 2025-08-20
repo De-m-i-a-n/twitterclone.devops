@@ -1,0 +1,13 @@
+{
+  "name": "twitter-clone",
+  "version": "1.0.0",
+  "description": "Build scripts for the Django Twitter clone frontend",
+  "scripts": {
+    "watch": "cross-env NODE_ENV=development npx tailwindcss -i ./src/tweets/static/tweets/src/input.css -o ./src/tweets/static/tweets/css/output.css --watch",
+    "build": "cross-env NODE_ENV=production npx tailwindcss -i ./src/tweets/static/tweets/src/input.css -o ./src/tweets/static/tweets/css/output.css --minify"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "tailwindcss": "^2.2.19"
+  }
+}

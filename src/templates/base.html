@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Twitter{% endblock %}</title>
+
+    <!-- This is the crucial link to your compiled CSS file -->
+    <!-- It uses the correct namespaced path we figured out before -->
+    <link rel="stylesheet" href="{% static 'tweets/css/output.css' %}">
+
+</head>
+<body class="bg-gray-100">
+    
+    <!-- Now, go to the template's index.html file. -->
+    <!-- Copy the HTML for the main container, the left sidebar, and the right sidebar -->
+    <!-- and paste it here. But LEAVE OUT the middle "feed" section. -->
+    
+    <!-- For example: -->
+    <div class="container mx-auto flex">
+        <aside class="w-1/4 p-4">
+            <!-- PASTE THE LEFT SIDEBAR HTML HERE -->
+        </aside>
+
+        <main class="w-1/2 p-4">
+            <!-- This block is the "empty space" that will be filled by other pages -->
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        <aside class="w-1/4 p-4">
+            <!-- PASTE THE RIGHT SIDEBAR HTML HERE -->
+        </aside>
+    </div>
+
+</body>
+</html>
